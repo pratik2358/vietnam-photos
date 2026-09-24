@@ -9,6 +9,7 @@ Row types:
   row     2-4 photos side by side, same height
   stagger two photos at different sizes, offset vertically
   strip   a horizontally scrolling film strip
+  tone    ("tone", "dark") switches the page background from this point on
 """
 import html
 import os
@@ -18,12 +19,23 @@ SRC, OUT = "photos", "img"
 SIZES = {"s": 1000, "l": 2200}
 
 NAME = "Pratik Karmakar"
+INSTAGRAM = "pkpratik"
 TITLE = "Vietnam"
 
 LAYOUT = [
     {
-        "id": "hanoi-night", "num": "I", "title": "Hà Nội", "sub": "after dark", "tone": "dark",
+        "id": "hanoi", "num": "I", "title": "Hà Nội", "sub": "from day into night",
         "rows": [
+            ("center", "9672"),
+            ("stagger", "9606", "9201"),
+            ("row", "9715", "9648"),
+            ("row", "9701", "9722"),
+            ("center", "9770"),
+            ("row", "9790", "9803", "9824"),
+            ("row", "9822", "9742"),
+            ("row", "9738", "9842"),
+            ("full", "9890"),
+            ("tone", "dark"),
             ("full", "9174"),
             ("row", "9070", "9121"),
             ("row", "9026", "9636"),
@@ -37,11 +49,10 @@ LAYOUT = [
             ("row", "9112", "9137"),
             ("left", "9639"),
             ("center", "9160"),
-            ("right", "9201"),
         ],
     },
     {
-        "id": "ninh-binh", "num": "II", "title": "Ninh Bình", "sub": "on the water", "tone": "light",
+        "id": "ninh-binh", "num": "II", "title": "Ninh Bình", "sub": "on the water",
         "rows": [
             ("full", "9553"),
             ("stagger", "9238", "9222"),
@@ -57,21 +68,7 @@ LAYOUT = [
         ],
     },
     {
-        "id": "hanoi-day", "num": "III", "title": "Hà Nội", "sub": "by day", "tone": "light",
-        "rows": [
-            ("center", "9672"),
-            ("center", "9606"),
-            ("stagger", "9715", "9648"),
-            ("row", "9701", "9722"),
-            ("center", "9770"),
-            ("row", "9790", "9803", "9824"),
-            ("row", "9822", "9742"),
-            ("row", "9738", "9842"),
-            ("full", "9890"),
-        ],
-    },
-    {
-        "id": "sapa", "num": "IV", "title": "Sa Pa", "sub": "in the clouds", "tone": "light",
+        "id": "sapa", "num": "III", "title": "Sa Pa", "sub": "in the clouds",
         "rows": [
             ("full", "0721"),
             ("row", "0709", "0716", "0717"),
@@ -169,7 +166,7 @@ def render_row(row, dims, first):
 
 def build():
     dims = process()
-    used = [k for ch in LAYOUT for r in ch["rows"] for k in r[1:]]
+    used = [k for ch in LAYOUT for r in ch["rows"] if r[0] != "tone" for k in r[1:]]
     missing, dupes = set(dims) - set(used), {k for k in used if used.count(k) > 1}
     unknown = set(used) - set(dims)
     assert not unknown, f"unknown photos in LAYOUT: {unknown}"
@@ -180,18 +177,23 @@ def build():
     nav = "".join(
         f'<li><a href="#{c["id"]}"><span>{c["num"]}</span>{html.escape(c["title"])} '
         f'<em>{c["sub"]}</em></a></li>' for c in LAYOUT)
-    body, first = [], True
-    for c in LAYOUT:
-        rows = "".join(render_row(r, dims, first and i == 0) for i, r in enumerate(c["rows"]))
-        first = False
-        body.append(
-            f'<section id="{c["id"]}" class="chapter" data-tone="{c["tone"]}">'
-            f'<header class="ch-head"><span class="num">{c["num"]}</span>'
-            f'<h2>{html.escape(c["title"])}</h2><p>{c["sub"]}</p></header>{rows}</section>')
+    body = []
+    for n, c in enumerate(LAYOUT):
+        # A ("tone", "dark"|"light") row starts a new part; the page background follows it.
+        parts = [["light", f'<header class="ch-head"><span class="num">{c["num"]}</span>'
+                           f'<h2>{html.escape(c["title"])}</h2><p>{c["sub"]}</p></header>']]
+        for i, r in enumerate(c["rows"]):
+            if r[0] == "tone":
+                parts.append([r[1], ""])
+            else:
+                parts[-1][1] += render_row(r, dims, n == 0 and i == 0)
+        inner = "".join(f'<div class="part" data-tone="{t}">{h}</div>' for t, h in parts)
+        body.append(f'<section id="{c["id"]}" class="chapter">{inner}</section>')
 
     with open("template.html") as f:
         page = f.read()
     page = (page.replace("{{TITLE}}", TITLE).replace("{{NAME}}", NAME)
+            .replace("{{INSTAGRAM}}", INSTAGRAM)
             .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body))
             .replace("{{COUNT}}", str(len(used))))
     with open("index.html", "w") as f:

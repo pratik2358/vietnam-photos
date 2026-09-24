@@ -7,11 +7,11 @@
   }, { rootMargin: '0px 0px -8% 0px' });
   figs.forEach(f => reveal.observe(f));
 
-  // The page background follows the chapter in the middle of the screen.
+  // The page background follows the part of the page in the middle of the screen.
   const tone = new IntersectionObserver(entries => {
     for (const e of entries) if (e.isIntersecting) document.body.dataset.tone = e.target.dataset.tone;
   }, { rootMargin: '-50% 0px -50% 0px' });
-  document.querySelectorAll('.chapter, .intro, .end').forEach(s => {
+  document.querySelectorAll('.intro, .part, .end').forEach(s => {
     if (!s.dataset.tone) s.dataset.tone = 'light';
     tone.observe(s);
   });
