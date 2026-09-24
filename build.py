@@ -245,8 +245,7 @@ def build():
         page = f.read()
     page = (page.replace("{{TITLE}}", TITLE).replace("{{NAME}}", NAME)
             .replace("{{INSTAGRAM}}", INSTAGRAM)
-            .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body))
-            .replace("{{COUNT}}", str(len(used))))
+            .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)))
     with open("index.html", "w") as f:
         f.write(page)
     print(f"index.html written: {len(used)} photos, {len(LAYOUT)} chapters")
