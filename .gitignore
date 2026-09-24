@@ -1,6 +1,6 @@
-photos/
+/photos/
 .DS_Store
 _preview.html
 __pycache__/
 img/sources.json
-me/
+/me/
