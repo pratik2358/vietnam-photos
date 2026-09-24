@@ -1,7 +1,10 @@
 """Build the site: resize photos/ into img/ and write index.html from LAYOUT.
 
 Usage: python3 build.py
+Each chapter reads from its own folder in photos/ (photos/hanoi, photos/sapa, ...).
 Photos are referenced by file number (e.g. "9553" -> DSCF9553.jpg).
+A photo in a chapter's folder that LAYOUT doesn't mention is added to the end of
+that chapter, so new photos show up without editing LAYOUT.
 Row types:
   full    one photo, edge to edge
   center  one photo, centred at reading width
@@ -12,6 +15,7 @@ Row types:
   tone    ("tone", "dark") switches the page background from this point on
 """
 import html
+import json
 import os
 from PIL import Image, ImageOps
 
@@ -24,7 +28,7 @@ TITLE = "Vietnam"
 
 LAYOUT = [
     {
-        "id": "hanoi", "num": "I", "title": "Hà Nội", "sub": "from day into night",
+        "id": "hanoi", "folder": "hanoi", "num": "I", "title": "Hà Nội", "sub": "from day into night",
         "rows": [
             ("center", "9672"),
             ("stagger", "9606", "9201"),
@@ -52,7 +56,7 @@ LAYOUT = [
         ],
     },
     {
-        "id": "ninh-binh", "num": "II", "title": "Ninh Bình", "sub": "on the water",
+        "id": "ninh-binh", "folder": "ninh_binh", "num": "II", "title": "Ninh Bình", "sub": "on the water",
         "rows": [
             ("full", "9553"),
             ("stagger", "9238", "9222"),
@@ -68,7 +72,7 @@ LAYOUT = [
         ],
     },
     {
-        "id": "sapa", "num": "III", "title": "Sa Pa", "sub": "in the clouds",
+        "id": "sapa", "folder": "sapa", "num": "III", "title": "Sa Pa", "sub": "in the clouds",
         "rows": [
             ("full", "0721"),
             ("row", "0709", "0716", "0717"),
@@ -109,27 +113,61 @@ LAYOUT = [
 
 
 def process():
-    """Resize every photo once; return {number: (w, h)}."""
-    dims = {}
-    for f in sorted(os.listdir(SRC)):
-        if not f.lower().endswith((".jpg", ".jpeg")):
+    """Resize new or changed photos; return {number: (w, h)} and {number: folder}."""
+    manifest_path = f"{OUT}/sources.json"
+    try:
+        with open(manifest_path) as f:
+            manifest = json.load(f)
+    except FileNotFoundError:
+        manifest = {}
+    dims, folders = {}, {}
+    for folder in sorted(os.listdir(SRC)):
+        if not os.path.isdir(os.path.join(SRC, folder)):
             continue
-        key = os.path.splitext(f)[0].replace("DSCF", "").lower()
-        targets = {k: f"{OUT}/{k}/{key}.jpg" for k in SIZES}
-        if all(os.path.exists(t) for t in targets.values()):
-            with Image.open(targets["l"]) as im:
-                dims[key] = im.size
-            continue
-        im = ImageOps.exif_transpose(Image.open(os.path.join(SRC, f))).convert("RGB")
-        for k, px in SIZES.items():
-            os.makedirs(f"{OUT}/{k}", exist_ok=True)
-            c = im.copy()
-            c.thumbnail((px, px), Image.LANCZOS)
-            c.save(targets[k], quality=82, optimize=True, progressive=True)
-            if k == "l":
-                dims[key] = c.size
-        print("resized", f)
-    return dims
+        for f in sorted(os.listdir(os.path.join(SRC, folder))):
+            if not f.lower().endswith((".jpg", ".jpeg")):
+                continue
+            path = os.path.join(SRC, folder, f)
+            key = os.path.splitext(f)[0].replace("DSCF", "").lower()
+            assert key not in folders, f"{key} is in both {folders.get(key)} and {folder}"
+            folders[key] = folder
+            st = os.stat(path)
+            stamp = [st.st_size, int(st.st_mtime)]
+            targets = {k: f"{OUT}/{k}/{key}.jpg" for k in SIZES}
+            if manifest.get(key) == stamp and all(os.path.exists(t) for t in targets.values()):
+                with Image.open(targets["l"]) as im:
+                    dims[key] = im.size
+                continue
+            im = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+            for k, px in SIZES.items():
+                os.makedirs(f"{OUT}/{k}", exist_ok=True)
+                c = im.copy()
+                c.thumbnail((px, px), Image.LANCZOS)
+                c.save(targets[k], quality=82, optimize=True, progressive=True)
+                if k == "l":
+                    dims[key] = c.size
+            manifest[key] = stamp
+            print("resized", path)
+    # Drop resized copies of photos that were removed from photos/.
+    for k in SIZES:
+        for f in os.listdir(f"{OUT}/{k}"):
+            if os.path.splitext(f)[0] not in dims:
+                os.remove(f"{OUT}/{k}/{f}")
+                print("removed", f"{OUT}/{k}/{f}")
+    manifest = {k: v for k, v in manifest.items() if k in dims}
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=0, sort_keys=True)
+    return dims, folders
+
+
+def add_unplaced(chapter, placed, folders):
+    """Append photos from the chapter's folder that LAYOUT doesn't mention."""
+    extra = sorted(k for k, f in folders.items() if f == chapter["folder"] and k not in placed)
+    if extra:
+        print(f"note: added to the end of {chapter['folder']}: {extra}")
+    for i in range(0, len(extra), 2):
+        pair = extra[i:i + 2]
+        chapter["rows"].append(("row", *pair) if len(pair) == 2 else ("center", pair[0]))
 
 
 def figure(key, dims, sizes, cls="", eager=False):
@@ -165,14 +203,27 @@ def render_row(row, dims, first):
 
 
 def build():
-    dims = process()
-    used = [k for ch in LAYOUT for r in ch["rows"] if r[0] != "tone" for k in r[1:]]
-    missing, dupes = set(dims) - set(used), {k for k in used if used.count(k) > 1}
-    unknown = set(used) - set(dims)
-    assert not unknown, f"unknown photos in LAYOUT: {unknown}"
+    dims, folders = process()
+
+    def placed():
+        return [k for ch in LAYOUT for r in ch["rows"] if r[0] != "tone" for k in r[1:]]
+
+    used = placed()
+    unknown = [k for k in used if k not in dims]
+    dupes = {k for k in used if used.count(k) > 1}
+    assert not unknown, f"photos in LAYOUT but not in photos/: {unknown}"
     assert not dupes, f"photos used twice: {dupes}"
-    if missing:
-        print("note: not placed in LAYOUT:", sorted(missing))
+    for ch in LAYOUT:
+        for r in ch["rows"]:
+            for k in r[1:] if r[0] != "tone" else ():
+                if folders[k] != ch["folder"]:
+                    print(f"warning: {k} is in photos/{folders[k]} but LAYOUT puts it in {ch['id']}")
+    for ch in LAYOUT:
+        add_unplaced(ch, set(used), folders)
+    used = placed()
+    orphans = sorted(set(dims) - set(used))
+    if orphans:
+        print("note: in folders with no chapter, not shown:", orphans)
 
     nav = "".join(
         f'<li><a href="#{c["id"]}"><span>{c["num"]}</span>{html.escape(c["title"])} '

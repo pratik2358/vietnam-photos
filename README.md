@@ -4,7 +4,9 @@ Photographs by Pratik Karmakar: Hà Nội, Ninh Bình and Sa Pa.
 
 The page is plain HTML, CSS and JS, served by GitHub Pages.
 
-To add or rearrange photos, put the originals in `photos/`, edit `LAYOUT` in `build.py`, then run:
+Originals live in one folder per chapter: `photos/hanoi`, `photos/ninh_binh`, `photos/sapa`.
+To add a photo, drop it into its chapter's folder; it is placed at the end of that chapter
+until you give it a spot in `LAYOUT` in `build.py`. Then run:
 
     python3 build.py
 
