@@ -19,12 +19,20 @@ import json
 import os
 from PIL import Image, ImageOps
 
-SRC, OUT = "photos", "img"
+SRC, OUT, ME = "photos", "img", "me"
 SIZES = {"s": 1000, "l": 2200}
 
 NAME = "Pratik Karmakar"
 INSTAGRAM = "pkpratik"
 TITLE = "Vietnam"
+
+ABOUT_TITLE = "On the other side of the lens"
+ABOUT = [
+    "I&rsquo;m Pratik. Most of my days go into computer science research, "
+    "where nothing counts until it&rsquo;s proven.",
+    "Photography is just another quirk &mdash; the one place where "
+    "seeing is enough.",
+]
 
 LAYOUT = [
     {
@@ -170,16 +178,52 @@ def add_unplaced(chapter, placed, folders):
         chapter["rows"].append(("row", *pair) if len(pair) == 2 else ("center", pair[0]))
 
 
-def figure(key, dims, sizes, cls="", eager=False):
+def figure(key, dims, sizes, cls="", eager=False, base=OUT, alt=""):
     w, h = dims[key]
     load = "eager" if eager else "lazy"
     style = f' style="--ar:{w / h:.4f}"'
     return (
         f'<figure class="ph {cls}"{style}>'
-        f'<img src="{OUT}/s/{key}.jpg" srcset="{OUT}/s/{key}.jpg 1000w, {OUT}/l/{key}.jpg 2200w" '
-        f'sizes="{sizes}" width="{w}" height="{h}" loading="{load}" decoding="async" alt="" '
-        f'data-full="{OUT}/l/{key}.jpg"></figure>'
+        f'<img src="{base}/s/{key}.jpg" srcset="{base}/s/{key}.jpg 1000w, {base}/l/{key}.jpg 2200w" '
+        f'sizes="{sizes}" width="{w}" height="{h}" loading="{load}" decoding="async" '
+        f'alt="{html.escape(alt)}" data-full="{base}/l/{key}.jpg"></figure>'
     )
+
+
+def about():
+    """The closing About section: the photographer, for once in front of the lens."""
+    base = f"{OUT}/me"
+    dims = {}
+    for f in sorted(os.listdir(ME)):
+        if not f.lower().endswith((".jpg", ".jpeg")):
+            continue
+        key = os.path.splitext(f)[0].lower()
+        targets = {k: f"{base}/{k}/{key}.jpg" for k in SIZES}
+        if all(os.path.exists(t) and os.path.getmtime(t) >= os.path.getmtime(os.path.join(ME, f))
+               for t in targets.values()):
+            with Image.open(targets["l"]) as im:
+                dims[key] = im.size
+            continue
+        im = ImageOps.exif_transpose(Image.open(os.path.join(ME, f))).convert("RGB")
+        for k, px in SIZES.items():
+            os.makedirs(f"{base}/{k}", exist_ok=True)
+            c = im.copy()
+            c.thumbnail((px, px), Image.LANCZOS)
+            c.save(targets[k], quality=82, optimize=True, progressive=True)
+            if k == "l":
+                dims[key] = c.size
+        print("resized", os.path.join(ME, f))
+    # The tallest photo anchors the mosaic; the rest stack beside it.
+    keys = sorted(dims, key=lambda k: dims[k][0] / dims[k][1])
+    tall, rest = keys[0], keys[1:]
+    alt = f"{NAME} with a camera"
+    figs = figure(tall, dims, "(max-width: 700px) 100vw, 26vw", "tall", base=base, alt=alt)
+    figs += "".join(figure(k, dims, "(max-width: 700px) 100vw, 34vw", "side", base=base, alt=alt)
+                    for k in rest)
+    text = "".join(f"<p>{p}</p>" for p in ABOUT)
+    return (f'<section id="about" class="about"><div class="about-text">'
+            f'<p class="kicker">About</p><h2>{ABOUT_TITLE}</h2>{text}</div>'
+            f'<div class="about-photos">{figs}</div></section>')
 
 
 def render_row(row, dims, first):
@@ -245,7 +289,7 @@ def build():
         page = f.read()
     page = (page.replace("{{TITLE}}", TITLE).replace("{{NAME}}", NAME)
             .replace("{{INSTAGRAM}}", INSTAGRAM)
-            .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)))
+            .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)).replace("{{ABOUT}}", about()))
     with open("index.html", "w") as f:
         f.write(page)
     print(f"index.html written: {len(used)} photos, {len(LAYOUT)} chapters")

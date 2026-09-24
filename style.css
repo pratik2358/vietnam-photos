@@ -92,6 +92,22 @@ body[data-tone="dark"] .ig:hover { color: var(--night-ink); }
 .js .ph.in { opacity: 1; transform: none; }
 .js .track .ph { transform: none; }
 
+/* ---------- about ---------- */
+.about {
+  display: grid; grid-template-columns: 5fr 7fr; gap: 6vw; align-items: center;
+  padding: var(--space) 7vw; border-top: 1px solid rgba(0, 0, 0, .08);
+}
+.about > * { min-width: 0; }
+.about + .end { padding-top: calc(var(--space) * .4); }
+.about h2 { font: 300 clamp(36px, 4.4vw, 64px)/1.05 var(--serif); margin: 14px 0 28px; }
+.about-text p:not(.kicker) { font: 300 clamp(20px, 1.9vw, 26px)/1.5 var(--serif); max-width: 30ch; }
+.about-text p + p { margin-top: 14px; }
+/* Portrait spans both rows; column ratio keeps the two landscapes flush with it. */
+.about-photos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.125fr); grid-template-rows: 1fr 1fr; gap: var(--gap); }
+.about-photos .tall { grid-row: 1 / 3; }
+.about-photos .ph { height: 100%; }
+.about-photos .ph img { height: 100%; object-fit: cover; }
+
 /* ---------- footer ---------- */
 .end { text-align: center; padding: var(--space) 7vw calc(var(--space) * 1.2); }
 .fin { font: italic 300 clamp(40px, 6vw, 80px) var(--serif); margin-bottom: 18px; }
@@ -133,6 +149,7 @@ body[data-tone="dark"] .ig:hover { color: var(--night-ink); }
   .strip { padding-left: 16px; }
   .track .ph { height: 46svh; }
   .lb-p, .lb-n { top: auto; bottom: 4px; transform: none; }
+  .about { grid-template-columns: 1fr; gap: 40px; padding-left: 16px; padding-right: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
