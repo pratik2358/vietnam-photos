@@ -11,7 +11,7 @@
   const tone = new IntersectionObserver(entries => {
     for (const e of entries) if (e.isIntersecting) document.body.dataset.tone = e.target.dataset.tone;
   }, { rootMargin: '-50% 0px -50% 0px' });
-  document.querySelectorAll('.intro, .part, .end').forEach(s => {
+  document.querySelectorAll('.intro, .part, .about, .end').forEach(s => {
     if (!s.dataset.tone) s.dataset.tone = 'light';
     tone.observe(s);
   });
