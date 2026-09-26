@@ -143,6 +143,17 @@ LAYOUT = [
             ("center", "1830"),
         ],
     },
+    {
+        "id": "da-nang", "folder": "da_nang", "num": "V", "title": "Đà Nẵng", "sub": "the nets come in",
+        "rows": [
+            ("full", "2098"),
+            ("stagger", "2059", "2069"),
+            ("row", "2079", "2102"),
+            ("center", "2117"),
+            ("right", "2146"),
+            ("full", "2128"),
+        ],
+    },
 ]
 
 
