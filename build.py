@@ -120,9 +120,8 @@ LAYOUT = [
     {
         "id": "hoi-an", "folder": "hoi_an", "num": "IV", "title": "Hội An", "sub": "by lantern light",
         "rows": [
-            ("full", "1662"),
-            ("stagger", "1699", "1700"),
-            ("right", "1727"),
+            ("full", "1700"),
+            ("stagger", "1699", "1727"),
             ("tone", "dark"),
             ("row", "1740", "1745"),
             ("left", "1764"),
@@ -149,7 +148,7 @@ LAYOUT = [
             ("full", "2098"),
             ("stagger", "2059", "2069"),
             ("row", "2079", "2102"),
-            ("center", "2117"),
+            ("row", "1662", "2117"),
             ("right", "2146"),
             ("full", "2128"),
         ],
