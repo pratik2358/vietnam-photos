@@ -16,20 +16,51 @@
     tone.observe(s);
   });
 
-  // Lightbox.
+  // Lightbox: only the trip's photos, not the About portraits.
+  const shots = [...document.querySelectorAll('.chapter .ph')];
   const lb = document.querySelector('.lb');
   const img = lb.querySelector('img');
   const cap = lb.querySelector('.lb-c');
   let i = 0;
   const show = n => {
-    i = (n + figs.length) % figs.length;
-    img.src = figs[i].querySelector('img').dataset.full;
-    cap.textContent = `${i + 1} / ${figs.length}`;
+    i = (n + shots.length) % shots.length;
+    img.src = shots[i].querySelector('img').dataset.full;
+    cap.textContent = `${i + 1} / ${shots.length}`;
   };
   const open = n => { show(n); lb.hidden = false; document.body.style.overflow = 'hidden'; };
-  const close = () => { lb.hidden = true; img.removeAttribute('src'); document.body.style.overflow = ''; };
+  const close = () => {
+    if (isFull()) exitFull();
+    lb.hidden = true; img.removeAttribute('src'); document.body.style.overflow = '';
+  };
 
-  figs.forEach((f, n) => f.addEventListener('click', () => open(n)));
+  // Full screen, from the button on each photo. Browsers that can't put a page element
+  // in full screen (iPhone Safari) get no button; clicking the photo still opens the viewer.
+  const canFull = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+  const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  const exitFull = () => (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  const enterFull = () => {
+    const req = (lb.requestFullscreen || lb.webkitRequestFullscreen).call(lb);
+    if (req && req.catch) req.catch(() => {});
+  };
+  const onFullChange = () => {
+    lb.classList.toggle('full', isFull());
+    if (!isFull() && !lb.hidden) close();  // leaving full screen goes straight back to the page
+  };
+  document.addEventListener('fullscreenchange', onFullChange);
+  document.addEventListener('webkitfullscreenchange', onFullChange);
+
+  shots.forEach((f, n) => {
+    f.addEventListener('click', () => open(n));
+    if (!canFull) return;
+    const b = document.createElement('button');
+    b.className = 'fs';
+    b.type = 'button';
+    b.setAttribute('aria-label', 'View full screen');
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" '
+      + 'stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+    b.addEventListener('click', e => { e.stopPropagation(); open(n); enterFull(); });
+    f.appendChild(b);
+  });
   lb.querySelector('.lb-x').onclick = close;
   lb.querySelector('.lb-p').onclick = e => { e.stopPropagation(); show(i - 1); };
   lb.querySelector('.lb-n').onclick = e => { e.stopPropagation(); show(i + 1); };
