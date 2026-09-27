@@ -12,3 +12,15 @@ until you give it a spot in `LAYOUT` in `build.py`. Then run:
 
 This resizes new photos into `img/` and rewrites `index.html` from `template.html`.
 The original photos stay local and are not committed.
+
+## Likes and comments
+
+Likes and comments live in Firebase (project `vietnam-photos-pratik`, Firestore) and are handled by `social.js`.
+Visitors don't sign in. Likes count once per browser. Comments stay hidden until approved.
+
+To moderate, open the Firebase console → Firestore → Data → `comments`:
+- **Approve:** open the comment and change `approved` from `false` to `true`.
+- **Remove:** delete the document.
+
+The security rules (Firestore → Rules) only let visitors add or remove one like at a time,
+submit comments as unapproved, and read approved comments.

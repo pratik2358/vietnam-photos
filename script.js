@@ -26,11 +26,15 @@
     i = (n + shots.length) % shots.length;
     img.src = shots[i].querySelector('img').dataset.full;
     cap.textContent = `${i + 1} / ${shots.length}`;
+    // social.js listens for this to load the photo's likes and comments.
+    const photo = img.src.split('/').pop().replace(/\.jpg$/, '');
+    lb.dispatchEvent(new CustomEvent('photo', { detail: photo }));
   };
   const open = n => { show(n); lb.hidden = false; document.body.style.overflow = 'hidden'; };
   const close = () => {
     if (isFull()) exitFull();
     lb.hidden = true; img.removeAttribute('src'); document.body.style.overflow = '';
+    lb.dispatchEvent(new Event('closed'));
   };
 
   // Full screen, from the button on each photo or the one in the viewer. Browsers that can't
@@ -76,14 +80,19 @@
   lb.querySelector('.lb-n').onclick = e => { e.stopPropagation(); show(i + 1); };
   lb.addEventListener('click', e => { if (e.target === lb) close(); });
   addEventListener('keydown', e => {
-    if (lb.hidden) return;
-    if (e.key === 'Escape') close();
+    if (lb.hidden || e.target.closest('input, textarea')) return;  // typing a comment
+    if (e.key === 'Escape') {
+      if (lb.classList.contains('talking')) lb.dispatchEvent(new Event('closepanel'));
+      else close();
+    }
     if (e.key === 'ArrowLeft') show(i - 1);
     if (e.key === 'ArrowRight') show(i + 1);
   });
 
   let x0 = null;
-  lb.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchstart', e => {
+    x0 = e.target.closest('.lb-panel, .lb-foot') ? null : e.touches[0].clientX;
+  }, { passive: true });
   lb.addEventListener('touchend', e => {
     if (x0 === null) return;
     const dx = e.changedTouches[0].clientX - x0;

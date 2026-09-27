@@ -41,9 +41,28 @@
   <button class="lb-p" aria-label="Previous">&larr;</button>
   <img alt="">
   <button class="lb-n" aria-label="Next">&rarr;</button>
-  <p class="lb-c"></p>
+  <div class="lb-foot">
+    <span class="lb-social" hidden>
+      <button class="lb-like" type="button" aria-pressed="false" aria-label="Like"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg><span></span></button>
+      <button class="lb-talk" type="button" aria-label="Comments"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 5.5h15v10h-9l-4 3.5v-3.5h-2z"/></svg><span></span></button>
+    </span>
+    <p class="lb-c"></p>
+  </div>
+  <aside class="lb-panel" hidden>
+    <div class="lb-panel-head"><p>Comments</p><button class="lb-panel-x" type="button" aria-label="Close comments">&times;</button></div>
+    <ol class="lb-comments"></ol>
+    <p class="lb-empty" hidden>No comments yet.</p>
+    <form>
+      <input name="name" placeholder="Your name" maxlength="60" required autocomplete="name">
+      <textarea name="text" placeholder="Say something about this photo" maxlength="1000" rows="3" required></textarea>
+      <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit">Send</button>
+      <p class="lb-note" aria-live="polite"></p>
+    </form>
+  </aside>
 </div>
 
 <script src="script.js"></script>
+<script type="module" src="social.js"></script>
 </body>
 </html>
