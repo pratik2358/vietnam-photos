@@ -33,8 +33,8 @@
     lb.hidden = true; img.removeAttribute('src'); document.body.style.overflow = '';
   };
 
-  // Full screen, from the button on each photo. Browsers that can't put a page element
-  // in full screen (iPhone Safari) get no button; clicking the photo still opens the viewer.
+  // Full screen, from the button on each photo or the one in the viewer. Browsers that can't
+  // put a page element in full screen (iPhone Safari) get no buttons; the viewer still works.
   const canFull = document.fullscreenEnabled || document.webkitFullscreenEnabled;
   const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
   const exitFull = () => (document.exitFullscreen || document.webkitExitFullscreen).call(document);
@@ -42,9 +42,19 @@
     const req = (lb.requestFullscreen || lb.webkitRequestFullscreen).call(lb);
     if (req && req.catch) req.catch(() => {});
   };
+  // Full screen entered from a photo on the page returns to the page when it ends;
+  // entered from the viewer, it returns to the viewer.
+  let backToPage = false;
   const onFullChange = () => {
     lb.classList.toggle('full', isFull());
-    if (!isFull() && !lb.hidden) close();  // leaving full screen goes straight back to the page
+    if (!isFull() && !lb.hidden && backToPage) close();
+  };
+  const lbFs = lb.querySelector('.lb-fs');
+  if (!canFull) lbFs.hidden = true;
+  lbFs.onclick = e => {
+    e.stopPropagation();
+    if (isFull()) exitFull();
+    else { backToPage = false; enterFull(); }
   };
   document.addEventListener('fullscreenchange', onFullChange);
   document.addEventListener('webkitfullscreenchange', onFullChange);
@@ -58,7 +68,7 @@
     b.setAttribute('aria-label', 'View full screen');
     b.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" '
       + 'stroke-width="1.6"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
-    b.addEventListener('click', e => { e.stopPropagation(); open(n); enterFull(); });
+    b.addEventListener('click', e => { e.stopPropagation(); open(n); backToPage = true; enterFull(); });
     f.appendChild(b);
   });
   lb.querySelector('.lb-x').onclick = close;

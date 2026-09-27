@@ -137,6 +137,9 @@ body[data-tone="dark"] .ig:hover { color: var(--night-ink); }
 }
 .lb button:hover { opacity: 1; }
 .lb-x { top: 8px; right: 12px; }
+.lb-fs { top: 14px; right: 64px; line-height: 0; }
+.lb-fs .fs-out, .lb.full .lb-fs .fs-in { display: none; }
+.lb.full .lb-fs .fs-out { display: inline; }
 .lb.full { background: #000; }
 .lb.full img { max-width: 100vw; max-height: 100vh; }
 .lb-p { left: 8px; top: 50%; transform: translateY(-50%); }
