@@ -16,6 +16,23 @@
     tone.observe(s);
   });
 
+  // Explore more / Show less: each chapter starts collapsed to a short selection.
+  document.querySelectorAll('.more-btn').forEach(btn => {
+    const chapter = btn.closest('.chapter');
+    btn.addEventListener('click', () => {
+      const open = chapter.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open);
+      if (open) {
+        // Take the viewer to the first photo that just appeared.
+        const first = chapter.querySelector('.r.extra');
+        scrollTo({ top: first.getBoundingClientRect().top + scrollY - innerHeight * .12, behavior: 'smooth' });
+      } else {
+        // The photos above just folded away; keep the button where the viewer is looking.
+        btn.scrollIntoView({ block: 'center', behavior: 'instant' });
+      }
+    });
+  });
+
   // Lightbox: only the trip's photos, not the About portraits.
   const shots = [...document.querySelectorAll('.chapter .ph')];
   const lb = document.querySelector('.lb');

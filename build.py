@@ -297,6 +297,41 @@ def render_row(row, dims, first):
     raise ValueError(kind)
 
 
+TEASER = 5        # photos to show at the start of each part while a chapter is collapsed
+MIN_HIDDEN = 4    # don't collapse a chapter to hide fewer photos than this
+
+
+def teaser(parts):
+    """Pick which rows to hide while the chapter is collapsed; returns their ids.
+
+    Each part keeps its opening rows (about TEASER photos) and its closing row, so a
+    collapsed chapter still moves from day into night and still ends on its last photo.
+    """
+    per_part = TEASER if len(parts) > 1 else TEASER + 3
+    extra = set()
+    for _, rows in parts:
+        shown = 0
+        for i, r in enumerate(rows):
+            if shown >= per_part and i != len(rows) - 1:
+                extra.add(id(r))
+            else:
+                shown += len(r) - 1
+    hidden = sum(len(r) - 1 for _, rows in parts for r in rows if id(r) in extra)
+    return extra if hidden >= MIN_HIDDEN else set()
+
+
+def more_button(chapter, hidden):
+    """The Explore more / Show less button, with a small fan of hidden photos."""
+    picks = [hidden[round(i * (len(hidden) - 1) / 2)] for i in range(3)]
+    thumbs = "".join(f'<img src="{OUT}/s/{k}.jpg" alt="" loading="lazy" decoding="async">' for k in picks)
+    title = html.escape(chapter["title"])
+    return (f'<div class="more"><button class="more-btn" type="button" aria-expanded="false">'
+            f'<span class="more-thumbs" aria-hidden="true">{thumbs}</span>'
+            f'<span class="more-open">Explore more of {title}</span>'
+            f'<span class="more-close">Show less</span>'
+            f'<span class="more-arrow" aria-hidden="true">&darr;</span></button></div>')
+
+
 def build():
     dims, folders = process()
 
@@ -325,15 +360,28 @@ def build():
         f'<em>{c["sub"]}</em></a></li>' for c in LAYOUT)
     body = []
     for n, c in enumerate(LAYOUT):
+        head = (f'<header class="ch-head"><span class="num">{c["num"]}</span>'
+                f'<h2>{html.escape(c["title"])}</h2><p>{c["sub"]}</p></header>')
         # A ("tone", "dark"|"light") row starts a new part; the page background follows it.
-        parts = [["light", f'<header class="ch-head"><span class="num">{c["num"]}</span>'
-                           f'<h2>{html.escape(c["title"])}</h2><p>{c["sub"]}</p></header>']]
-        for i, r in enumerate(c["rows"]):
+        parts = [["light", []]]
+        for r in c["rows"]:
             if r[0] == "tone":
-                parts.append([r[1], ""])
+                parts.append([r[1], []])
             else:
-                parts[-1][1] += render_row(r, dims, n == 0 and i == 0)
-        inner = "".join(f'<div class="part" data-tone="{t}">{h}</div>' for t, h in parts)
+                parts[-1][1].append(r)
+        extra = teaser(parts)
+        hidden = [k for _, rows in parts for r in rows if id(r) in extra for k in r[1:]]
+        inner = ""
+        for p_i, (tone, rows) in enumerate(parts):
+            h = head if p_i == 0 else ""
+            for r in rows:
+                row_html = render_row(r, dims, n == 0 and r is c["rows"][0])
+                if id(r) in extra:
+                    row_html = row_html.replace('<div class="r ', '<div class="r extra ', 1)
+                h += row_html
+            inner += f'<div class="part" data-tone="{tone}">{h}</div>'
+        if hidden:
+            inner += more_button(c, hidden)
         body.append(f'<section id="{c["id"]}" class="chapter">{inner}</section>')
 
     with open("template.html") as f:
