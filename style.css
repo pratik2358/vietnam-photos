@@ -26,16 +26,23 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- intro ---------- */
 .intro {
+  /* --pw: width of the photo on the right; the text keeps clear of it. */
+  --pw: min(38vw, calc(78svh * .887));
   min-height: 100svh;
   display: flex; flex-direction: column; justify-content: center;
-  padding: 8vh 7vw;
+  padding: 8vh calc(11vw + var(--pw)) 8vh 7vw;
   position: relative;
 }
+.intro-photo {
+  position: absolute; right: 7vw; top: 50%; width: var(--pw);
+  transform: translateY(-50%); animation: fade 1.6s ease both;
+}
+.intro-img { display: block; width: 100%; height: auto; }
 .kicker, .by, .ch-head .num, .toc span, .hint, .end p:last-of-type {
   font-size: 11px; text-transform: uppercase; letter-spacing: .28em; color: var(--muted);
 }
 .intro h1 {
-  font: 300 clamp(84px, 19vw, 300px)/.85 var(--serif);
+  font: 300 clamp(64px, calc((82vw - var(--pw)) / 3.4), 240px)/.85 var(--serif);
   letter-spacing: -.02em;
   margin: 2vh 0 3vh -.05em;
 }
@@ -236,6 +243,9 @@ body[data-tone="dark"] .more-thumbs img { border-color: var(--night-ink); }
 @media (max-width: 700px) {
   :root { --space: 56px; }
   .intro, .ch-head { padding-left: 16px; padding-right: 16px; }
+  .intro { --pw: 0px; padding-top: 16px; }
+  .intro-photo { position: static; width: auto; transform: none; margin: 0 -16px 6vh; }
+  .intro-img { height: 44svh; object-fit: cover; object-position: 50% 30%; }
   .down { right: 16px; }
   .toc { flex-direction: column; margin-top: 8vh; }
   .row { flex-direction: column; padding: 0 16px; }

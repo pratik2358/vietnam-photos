@@ -27,6 +27,11 @@ INSTAGRAM = "pkpratik"
 TITLE = "Vietnam"
 SITE_URL = "https://pratik2358.github.io/vietnam-photos/"
 
+# The photo on the opening screen, and its crop (left, top, right, bottom) in pixels.
+INTRO_PHOTO = "intro/intro.jpg"
+INTRO_CROP = (1997, 0, 5366, 3800)
+INTRO_ALT = "Silhouette of a person in a cap smoking on a balcony, misty mountains beyond"
+
 # The image shown when the link is shared (WhatsApp, iMessage, social media).
 # FOCUS is how far down the photo (0 = top, 1 = bottom) the crop should centre on.
 SHARE_PHOTO, SHARE_FOCUS = "2474", 0.55
@@ -234,6 +239,20 @@ def add_unplaced(chapter, placed, folders):
         chapter["rows"].append(("row", *pair) if len(pair) == 2 else ("center", pair[0]))
 
 
+def intro_image():
+    """Crop INTRO_PHOTO for the opening screen; returns its <img> tag."""
+    im = ImageOps.exif_transpose(Image.open(INTRO_PHOTO)).convert("RGB").crop(INTRO_CROP)
+    for name, px in (("s", 1000), ("l", 1900)):
+        c = im.copy()
+        c.thumbnail((px, px), Image.LANCZOS)
+        c.save(f"{OUT}/intro-{name}.jpg", quality=84, optimize=True, progressive=True)
+    w, h = c.size
+    return (f'<img class="intro-img" src="{OUT}/intro-s.jpg" '
+            f'srcset="{OUT}/intro-s.jpg 1000w, {OUT}/intro-l.jpg {w}w" '
+            f'sizes="(max-width: 700px) 100vw, 40vw" width="{w}" height="{h}" '
+            f'alt="{html.escape(INTRO_ALT)}" fetchpriority="high">')
+
+
 def share_image(folders):
     """Crop SHARE_PHOTO to 1200x630, the shape link previews use, as img/share.jpg."""
     src = os.path.join(SRC, folders[SHARE_PHOTO], f"DSCF{SHARE_PHOTO}.jpg")
@@ -408,6 +427,7 @@ def build():
         page = f.read()
     page = (page.replace("{{TITLE}}", TITLE).replace("{{NAME}}", NAME)
             .replace("{{SITE_URL}}", SITE_URL)
+            .replace("{{INTRO_IMG}}", intro_image())
             .replace("{{INSTAGRAM}}", INSTAGRAM)
             .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)).replace("{{ABOUT}}", about()))
     with open("index.html", "w") as f:
