@@ -25,6 +25,11 @@ SIZES = {"s": 1000, "l": 2200}
 NAME = "Pratik Karmakar"
 INSTAGRAM = "pkpratik"
 TITLE = "Vietnam"
+SITE_URL = "https://pratik2358.github.io/vietnam-photos/"
+
+# The image shown when the link is shared (WhatsApp, iMessage, social media).
+# FOCUS is how far down the photo (0 = top, 1 = bottom) the crop should centre on.
+SHARE_PHOTO, SHARE_FOCUS = "2474", 0.55
 
 ABOUT_TITLE = "On the other side of the lens"
 ABOUT = [
@@ -229,6 +234,20 @@ def add_unplaced(chapter, placed, folders):
         chapter["rows"].append(("row", *pair) if len(pair) == 2 else ("center", pair[0]))
 
 
+def share_image(folders):
+    """Crop SHARE_PHOTO to 1200x630, the shape link previews use, as img/share.jpg."""
+    src = os.path.join(SRC, folders[SHARE_PHOTO], f"DSCF{SHARE_PHOTO}.jpg")
+    if not os.path.exists(src):
+        src = next(os.path.join(SRC, folders[SHARE_PHOTO], f) for f in os.listdir(os.path.join(SRC, folders[SHARE_PHOTO]))
+                   if os.path.splitext(f)[0].replace("DSCF", "").lower() == SHARE_PHOTO)
+    im = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
+    w, h = im.size
+    ch = min(h, round(w * 630 / 1200))
+    top = min(max(0, round(h * SHARE_FOCUS - ch / 2)), h - ch)
+    im.crop((0, top, w, top + ch)).resize((1200, 630), Image.LANCZOS).save(
+        f"{OUT}/share.jpg", quality=85, optimize=True, progressive=True)
+
+
 def figure(key, dims, sizes, cls="", eager=False, base=OUT, alt=""):
     w, h = dims[key]
     load = "eager" if eager else "lazy"
@@ -334,6 +353,7 @@ def more_button(chapter, hidden):
 
 def build():
     dims, folders = process()
+    share_image(folders)
 
     def placed():
         return [k for ch in LAYOUT for r in ch["rows"] if r[0] != "tone" for k in r[1:]]
@@ -387,6 +407,7 @@ def build():
     with open("template.html") as f:
         page = f.read()
     page = (page.replace("{{TITLE}}", TITLE).replace("{{NAME}}", NAME)
+            .replace("{{SITE_URL}}", SITE_URL)
             .replace("{{INSTAGRAM}}", INSTAGRAM)
             .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)).replace("{{ABOUT}}", about()))
     with open("index.html", "w") as f:
