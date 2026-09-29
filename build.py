@@ -19,7 +19,7 @@ Row types:
   mosaic-l / mosaic-r  one large photo with two smaller ones stacked beside it
   whisper one small photo alone in a lot of space
   bleed-l / bleed-r    a photo running off the left/right edge of the screen
-  sheet   a film contact sheet on a black band, frame numbers beneath
+  sheet   a film contact sheet on a black band
   tone    ("tone", "dark") switches the page background from this point on
 """
 import html
@@ -369,7 +369,7 @@ def render_row(row, dims, first, head=""):
         return (f'<div class="r mosaic {kind}"><div class="m">{figure(big, dims, "(max-width: 700px) 100vw, 60vw", "big")}'
                 + "".join(figure(k, dims, third) for k in small) + '</div></div>')
     if kind == "sheet":
-        frames = "".join(f'<div class="frame">{figure(k, dims, third)}<span>{k}</span></div>' for k in keys)
+        frames = "".join(f'<div class="frame">{figure(k, dims, third)}</div>' for k in keys)
         return f'<div class="r sheet"><div class="film">{frames}</div></div>'
     if kind == "full":
         return f'<div class="r full">{figure(keys[0], dims, "100vw", eager=first)}</div>'
