@@ -12,6 +12,14 @@ Row types:
   row     2-4 photos side by side, same height
   stagger two photos at different sizes, offset vertically
   strip   a horizontally scrolling film strip
+  cover   the chapter's opening photo, full screen, with the chapter title on it
+  sticky-l / sticky-r  one photo pinned on the left/right while the rest scroll past it
+  overlap / overlap-r  a big photo with a smaller one laid over its corner
+  wave    three photos side by side at different heights
+  mosaic-l / mosaic-r  one large photo with two smaller ones stacked beside it
+  whisper one small photo alone in a lot of space
+  bleed-l / bleed-r    a photo running off the left/right edge of the screen
+  sheet   a film contact sheet on a black band, frame numbers beneath
   tone    ("tone", "dark") switches the page background from this point on
 """
 import html
@@ -59,73 +67,65 @@ LAYOUT = [
     {
         "id": "hanoi", "folder": "hanoi", "num": "I", "title": "Hà Nội", "sub": "from day into night",
         "rows": [
-            ("center", "9672"),
-            ("stagger", "9606", "9201"),
-            ("row", "9715", "9701", "9722"),
-            ("center", "9770"),
-            ("row", "9824", "9742"),
-            ("row", "9738", "9842"),
+            ("cover", "9770"),
+            ("whisper", "9715"),
+            ("mosaic-l", "9672", "9606", "9701"),
+            ("overlap", "9201", "9722"),
+            ("sticky-l", "9824", "9742", "9738", "9842"),
             ("full", "9890"),
             ("tone", "dark"),
             ("full", "9174"),
-            ("row", "9070", "9121"),
-            ("row", "9026", "9636"),
-            ("stagger", "9016", "9072"),
-            ("center", "9145"),
-            ("row", "9085", "9096"),
-            ("row", "9068", "9084"),
-            ("left", "9131"),
-            ("row", "9099", "9138", "9148"),
-            ("row", "9112", "9137"),
+            ("wave", "9121", "9026", "9016"),
+            ("overlap-r", "9070", "9636"),
+            ("stagger", "9085", "9096"),
+            ("sticky-r", "9068", "9084", "9145", "9131"),
+            ("mosaic-r", "9099", "9138", "9148"),
+            ("bleed-l", "9112"),
+            ("stagger", "9137", "9072"),
             ("center", "9639"),
         ],
     },
     {
         "id": "ninh-binh", "folder": "ninh_binh", "num": "II", "title": "Ninh Bình", "sub": "on the water",
         "rows": [
-            ("full", "9553"),
-            ("stagger", "9238", "9222"),
-            ("left", "9217"),
-            ("row", "9271", "9311"),
-            ("right", "9351"),
-            ("row", "9382", "9389"),
-            ("center", "9471"),
-            ("strip", "9385", "9395", "9411", "9414", "9424", "9485",
-             "9488", "9491", "9500"),
-            ("right", "9507"),
-            ("stagger", "9521", "9544"),
+            ("cover", "9553"),
+            ("bleed-r", "9222"),
+            ("stagger", "9238", "9217"),
+            ("overlap", "9271", "9389"),
+            ("sticky-l", "9382", "9311", "9351", "9471"),
+            ("sheet", "9385", "9395", "9411", "9414", "9424", "9485", "9488", "9491", "9500"),
+            ("row", "9507", "9521"),
+            ("whisper", "9544"),
         ],
     },
     {
         "id": "sapa", "folder": "sapa", "num": "III", "title": "Sa Pa", "sub": "in the clouds",
         "rows": [
-            ("full", "0721"),
-            ("row", "0709", "0716", "0717"),
-            ("row", "0732", "0734"),
-            ("left", "0740"),
-            ("stagger", "0748", "0771"),
-            ("row", "0779", "0786"),
-            ("center", "0794"),
-            ("stagger", "0813", "0821"),
-            ("row", "0828", "0831"),
-            ("row", "0835", "0837", "0872"),
-            ("row", "0858", "0869"),
-            ("row", "0941", "0942"),
-            ("center", "0952"),
-            ("row", "0945", "0948"),
-            ("right", "0954"),
-            ("row", "0960", "0981"),
+            ("cover", "0721"),
+            ("wave", "0709", "0716", "0717"),
+            ("overlap", "0732", "0734"),
+            ("sticky-l", "0786", "0779", "0794", "0821"),
+            ("wave", "0771", "0813", "0828"),
+            ("stagger", "0740", "0748"),
+            ("tone", "dark"),
+            ("bleed-l", "0835"),
+            ("overlap-r", "0869", "0831"),
+            ("row", "0837", "0872", "0858"),
+            ("tone", "light"),
+            ("full", "0952"),
+            ("stagger", "0945", "0948"),
+            ("whisper", "0981"),
             ("row", "0993", "0999"),
-            ("row", "1012", "1462"),
-            ("row", "1015_bw", "1018"),
+            ("row", "0941", "0942"),
+            ("bleed-r", "0960"),
+            ("row", "0954", "1012", "1462"),
+            ("stagger", "1018", "1015_bw"),
             ("full", "1027"),
-            ("row", "1095", "1447"),
-            ("row", "1503", "1507"),
-            ("row", "1547", "1549"),
-            ("stagger", "1579", "1599"),
-            ("row", "1601", "1603"),
+            ("sticky-r", "1447", "1095", "1503", "1507"),
+            ("wave", "1547", "1549", "1579"),
+            ("mosaic-l", "1601", "1599", "1603"),
             ("stagger", "1611", "1621"),
-            ("row", "1629", "1641", "1649"),
+            ("wave", "1629", "1641", "1649"),
             ("center", "1645"),
             ("full", "1553"),
         ],
@@ -133,47 +133,43 @@ LAYOUT = [
     {
         "id": "hoi-an", "folder": "hoi_an", "num": "IV", "title": "Hội An", "sub": "by lantern light",
         "rows": [
-            ("full", "1700"),
-            ("row", "2181", "2201"),
-            ("stagger", "2221", "2185"),
+            ("cover", "2302"),
+            ("bleed-l", "1700"),
+            ("stagger", "2181", "2201"),
             ("row", "2235", "2238", "2323"),
-            ("center", "2297"),
-            ("row", "2256", "2272"),
-            ("left", "2279"),
-            ("stagger", "2282", "2283"),
-            ("full", "2302"),
-            ("row", "2310", "2313"),
-            ("left", "2319"),
-            ("row", "2342", "2344", "2345"),
-            ("right", "2357"),
-            ("stagger", "2369", "2379"),
-            ("row", "2385", "2391"),
-            ("right", "2397"),
+            ("overlap", "2297", "2221"),
+            ("sticky-l", "2282", "2283", "2256", "2272"),
+            ("whisper", "2185"),
+            ("row", "2279", "2310"),
+            ("bleed-r", "2313"),
+            ("stagger", "2319", "2342"),
+            ("mosaic-r", "2357", "2344", "2345"),
+            ("row", "2369", "2379"),
+            ("overlap-r", "2391", "2397"),
+            ("bleed-l", "2385"),
             ("row", "2420", "2423"),
             ("stagger", "1699", "1727"),
             ("row", "2430", "2471"),
             ("full", "2474"),
             ("tone", "dark"),
+            ("bleed-l", "2480"),
             ("row", "1740", "1745"),
-            ("left", "1764"),
-            ("stagger", "1776", "1773"),
-            ("row", "2484", "2480", "2489"),
-            ("row", "1793", "1806"),
+            ("whisper", "1806"),
+            ("overlap", "1764", "1776"),
+            ("bleed-r", "1773"),
+            ("wave", "2484", "2489", "1793"),
             ("full", "1872"),
-            ("row", "1832", "1842"),
-            ("center", "1859"),
-            ("stagger", "1867", "1856"),
-            ("row", "1890", "1891", "1905"),
+            ("sticky-l", "1867", "1832", "1842", "1859", "1856"),
+            ("wave", "1890", "1891", "1905"),
             ("center", "1895"),
             ("row", "1884", "1888"),
-            ("row", "2517", "2520"),
-            ("row", "1907", "1920"),
+            ("stagger", "2517", "2520"),
+            ("overlap-r", "1907", "1920"),
             ("row", "1923", "1943"),
             ("stagger", "1956", "1967"),
-            ("row", "1970", "1989", "1992"),
-            ("stagger", "2039", "1994"),
-            ("row", "2523", "2526"),
-            ("center", "hoi_an_hair"),
+            ("wave", "1970", "1989", "1992"),
+            ("mosaic-l", "1994", "2039", "2523"),
+            ("row", "2526", "hoi_an_hair"),
             ("row", "2027", "2037"),
             ("center", "1830"),
         ],
@@ -181,15 +177,19 @@ LAYOUT = [
     {
         "id": "da-nang", "folder": "da_nang", "num": "V", "title": "Đà Nẵng", "sub": "the nets come in",
         "rows": [
-            ("full", "2098"),
-            ("stagger", "2059", "2069"),
-            ("row", "2079", "2102"),
-            ("row", "1662", "2117"),
+            ("cover", "2098"),
+            ("whisper", "2059"),
+            ("bleed-r", "2069"),
+            ("sticky-l", "2079", "2102", "1662", "2117"),
             ("right", "2146"),
             ("full", "2128"),
         ],
     },
 ]
+# Where to centre each chapter cover when the screen crops it (CSS object-position).
+COVER_FOCUS = {"9770": "64% 50%", "9553": "50% 60%", "0721": "35% 50%", "2302": "45% 45%", "2098": "55% 55%"}
+NOT_PHOTOS = ("tone", "beat")  # row kinds whose entries aren't photos
+COLLAPSE = True  # start each chapter as a short selection with an Explore more button
 
 
 def process():
@@ -341,8 +341,36 @@ def about():
             f'<div class="about-photos">{figs}</div></section>')
 
 
-def render_row(row, dims, first):
+def render_row(row, dims, first, head=""):
     kind, keys = row[0], row[1:]
+    half, third = "(max-width: 700px) 100vw, 50vw", "(max-width: 700px) 100vw, 34vw"
+    if kind == "cover":
+        focus = COVER_FOCUS.get(keys[0], "50% 50%")
+        return (f'<div class="r cover" style="--focus:{focus}">{figure(keys[0], dims, "100vw", eager=True)}'
+                f'{head}</div>')
+    if kind == "beat":
+        return f'<div class="r beat"><p>{html.escape(keys[0])}</p></div>'
+    if kind in ("bleed-l", "bleed-r"):
+        return f'<div class="r bleed {kind}">{figure(keys[0], dims, "(max-width: 700px) 100vw, 75vw")}</div>'
+    if kind == "whisper":
+        return f'<div class="r whisper">{figure(keys[0], dims, "(max-width: 700px) 60vw, 30vw")}</div>'
+    if kind in ("overlap", "overlap-r"):
+        big, small = keys
+        return (f'<div class="r overlap {kind}">{figure(big, dims, "(max-width: 700px) 100vw, 64vw", "big")}'
+                f'{figure(small, dims, "(max-width: 700px) 55vw, 30vw", "small")}</div>')
+    if kind in ("sticky-l", "sticky-r"):
+        pin, rest = keys[0], keys[1:]
+        return (f'<div class="r sticky {kind}"><div class="pin">{figure(pin, dims, half)}</div>'
+                f'<div class="col">{"".join(figure(k, dims, half) for k in rest)}</div></div>')
+    if kind == "wave":
+        return '<div class="r wave">' + "".join(figure(k, dims, third) for k in keys) + "</div>"
+    if kind in ("mosaic-l", "mosaic-r"):
+        big, *small = keys
+        return (f'<div class="r mosaic {kind}"><div class="m">{figure(big, dims, "(max-width: 700px) 100vw, 60vw", "big")}'
+                + "".join(figure(k, dims, third) for k in small) + '</div></div>')
+    if kind == "sheet":
+        frames = "".join(f'<div class="frame">{figure(k, dims, third)}<span>{k}</span></div>' for k in keys)
+        return f'<div class="r sheet"><div class="film">{frames}</div></div>'
     if kind == "full":
         return f'<div class="r full">{figure(keys[0], dims, "100vw", eager=first)}</div>'
     if kind in ("center", "left", "right"):
@@ -371,7 +399,10 @@ def teaser(parts):
     Each part keeps its opening rows (about TEASER photos) and its closing row, so a
     collapsed chapter still moves from day into night and still ends on its last photo.
     """
-    per_part = TEASER if len(parts) > 1 else TEASER + 3
+    if not COLLAPSE:
+        return set()
+    # Fewer per part when a chapter has several (Sa Pa: day, night, the next day).
+    per_part = {1: TEASER + 3, 2: TEASER}.get(len(parts), TEASER - 2)
     extra = set()
     for _, rows in parts:
         shown = 0
@@ -401,7 +432,7 @@ def build():
     share_image(folders)
 
     def placed():
-        return [k for ch in LAYOUT for r in ch["rows"] if r[0] != "tone" for k in r[1:]]
+        return [k for ch in LAYOUT for r in ch["rows"] if r[0] not in NOT_PHOTOS for k in r[1:]]
 
     used = placed()
     unknown = [k for k in used if k not in dims]
@@ -410,7 +441,7 @@ def build():
     assert not dupes, f"photos used twice: {dupes}"
     for ch in LAYOUT:
         for r in ch["rows"]:
-            for k in r[1:] if r[0] != "tone" else ():
+            for k in r[1:] if r[0] not in NOT_PHOTOS else ():
                 if folders[k] != ch["folder"]:
                     print(f"warning: {k} is in photos/{folders[k]} but LAYOUT puts it in {ch['id']}")
     for ch in LAYOUT:
@@ -438,9 +469,11 @@ def build():
         hidden = [k for _, rows in parts for r in rows if id(r) in extra for k in r[1:]]
         inner = ""
         for p_i, (tone, rows) in enumerate(parts):
-            h = head if p_i == 0 else ""
+            has_cover = c["rows"][0][0] == "cover"
+            h = head if p_i == 0 and not has_cover else ""
             for r in rows:
-                row_html = render_row(r, dims, n == 0 and r is c["rows"][0])
+                row_html = render_row(r, dims, n == 0 and r is c["rows"][0],
+                                      head.replace('class="ch-head"', 'class="ch-head on-photo"') if r[0] == "cover" else "")
                 if id(r) in extra:
                     row_html = row_html.replace('<div class="r ', '<div class="r extra ', 1)
                 h += row_html
