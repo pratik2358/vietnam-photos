@@ -27,19 +27,20 @@ INSTAGRAM = "pkpratik"
 TITLE = "Vietnam"
 SITE_URL = "https://pratik2358.github.io/vietnam-photos/"
 
-# The slideshow on the opening screen: (photo, focus). Each photo is cropped to a tall 4:5
-# frame; focus is where across the photo (0 = left edge, 1 = right edge) the crop centres.
+# The slideshow on the opening screen. Each photo is cropped to a tall 4:5 frame around its subject:
+#   (photo, x, y, zoom): x and y are where the subject sits (0-1 across and down the photo),
+#   zoom > 1 crops in tighter than the largest 4:5 frame the photo allows.
 SLIDESHOW = [
-    ("9174", 0.50),  # Hà Nội: the train street
-    ("9770", 0.52),  # Hà Nội: áo dài and umbrella, Temple of Literature
-    ("9553", 0.50),  # Ninh Bình: the valley
-    ("9389", 0.50),  # Ninh Bình: conical hat, orange life vest
-    ("0721", 0.45),  # Sa Pa: sun rays over the mountains
-    ("1027", 0.36),  # Sa Pa: the flag bearer
-    ("2302", 0.62),  # Hội An: red lanterns against the sky
-    ("2474", 0.50),  # Hội An: blue hour on the river
-    ("1830", 0.50),  # Hội An: the Covered Bridge at night
-    ("2098", 0.62),  # Đà Nẵng: hauling the net
+    ("9174", 0.53, 0.50, 1.00),  # Hà Nội: train street; the train's headlight on the centre line
+    ("9770", 0.62, 0.55, 1.10),  # Hà Nội: áo dài and umbrella, with the red pillar beside her
+    ("9553", 0.52, 0.50, 1.00),  # Ninh Bình: the river winding through the karsts
+    ("9389", 0.50, 0.50, 1.00),  # Ninh Bình: conical hat and life vest (already 4:5)
+    ("0721", 0.32, 0.50, 1.00),  # Sa Pa: the sun rays falling on the left
+    ("1027", 0.49, 0.50, 1.00),  # Sa Pa: both boys whole, the flag above them
+    ("2302", 0.60, 0.45, 1.00),  # Hội An: the two red lanterns, the old façade at the edge
+    ("2474", 0.40, 0.50, 1.00),  # Hội An: the lit house, the moon and the lantern boat
+    ("1830", 0.50, 0.62, 1.00),  # Hội An: the bridge and its reflection, less empty sky
+    ("2098", 0.57, 0.50, 1.00),  # Đà Nẵng: the fisherman in the hat, the net line behind him
 ]
 
 # The image shown when the link is shared (WhatsApp, iMessage, social media).
@@ -260,17 +261,15 @@ def slideshow(folders):
     """Crop the SLIDESHOW photos to 4:5 into img/show/; returns the slideshow markup."""
     os.makedirs(f"{OUT}/show", exist_ok=True)
     keep = set()
-    for key, focus in SLIDESHOW:
+    for key, fx, fy, zoom in SLIDESHOW:
         out = f"{OUT}/show/{key}.jpg"
         keep.add(f"{key}.jpg")
-        src = source(key, folders)
-        if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(src):
-            continue
-        im = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
+        im = ImageOps.exif_transpose(Image.open(source(key, folders))).convert("RGB")
         w, h = im.size
-        cw, ch = (round(h * 4 / 5), h) if w / h > 4 / 5 else (w, round(w * 5 / 4))
-        left = min(max(0, round(w * focus - cw / 2)), w - cw)
-        top = (h - ch) // 2
+        cw, ch = (h * 4 / 5, h) if w / h > 4 / 5 else (w, w * 5 / 4)
+        cw, ch = round(cw / zoom), round(ch / zoom)
+        left = min(max(0, round(w * fx - cw / 2)), w - cw)
+        top = min(max(0, round(h * fy - ch / 2)), h - ch)
         im.crop((left, top, left + cw, top + ch)).resize((1000, 1250), Image.LANCZOS).save(
             out, quality=82, optimize=True, progressive=True)
     for f in os.listdir(f"{OUT}/show"):
@@ -280,7 +279,7 @@ def slideshow(folders):
     imgs = "".join(
         (f'<img src="{OUT}/show/{k}.jpg" class="on"' if i == 0 else f'<img data-src="{OUT}/show/{k}.jpg"')
         + ' alt="" width="1000" height="1250">'
-        for i, (k, _) in enumerate(SLIDESHOW))
+        for i, (k, *_) in enumerate(SLIDESHOW))
     return f'<div class="show" aria-hidden="true">{imgs}</div>'
 
 
