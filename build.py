@@ -141,7 +141,6 @@ LAYOUT = [
             ("sticky-l", "2282", "2283", "2256", "2272"),
             ("whisper", "2185"),
             ("row", "2279", "2310"),
-            ("bleed-r", "2313"),
             ("stagger", "2319", "2342"),
             ("mosaic-r", "2357", "2344", "2345"),
             ("row", "2369", "2379"),
@@ -188,6 +187,8 @@ LAYOUT = [
 ]
 # Where to centre each chapter cover when the screen crops it (CSS object-position).
 COVER_FOCUS = {"9770": "64% 50%", "9553": "50% 60%", "0721": "35% 50%", "2302": "45% 45%", "2098": "55% 55%"}
+# Photos kept in photos/ but left off the site (and not published at all).
+EXCLUDE = {"2313"}
 NOT_PHOTOS = ("tone", "beat")  # row kinds whose entries aren't photos
 COLLAPSE = True  # start each chapter as a short selection with an Explore more button
 
@@ -209,6 +210,8 @@ def process():
                 continue
             path = os.path.join(SRC, folder, f)
             key = os.path.splitext(f)[0].replace("DSCF", "").lower()
+            if key in EXCLUDE:
+                continue
             assert key not in folders, f"{key} is in both {folders.get(key)} and {folder}"
             folders[key] = folder
             st = os.stat(path)
