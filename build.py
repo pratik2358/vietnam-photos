@@ -36,11 +36,11 @@ SLIDESHOW = [
     ("9553", 0.52, 0.50, 1.00),  # Ninh Bình: the river winding through the karsts
     ("9389", 0.50, 0.50, 1.00),  # Ninh Bình: conical hat and life vest (already 4:5)
     ("0721", 0.32, 0.50, 1.00),  # Sa Pa: the sun rays falling on the left
-    ("1027", 0.49, 0.50, 1.00),  # Sa Pa: both boys whole, the flag above them
-    ("2302", 0.60, 0.45, 1.00),  # Hội An: the two red lanterns, the old façade at the edge
+    ("1027", 0.56, 0.50, 1.00),  # Sa Pa: the boys to the left, the whole flag in
+    ("2302", 0.37, 0.45, 1.00),  # Hội An: the woman on the roof, with the nearer red lantern
     ("2474", 0.40, 0.50, 1.00),  # Hội An: the lit house, the moon and the lantern boat
     ("1830", 0.50, 0.62, 1.00),  # Hội An: the bridge and its reflection, less empty sky
-    ("2098", 0.57, 0.50, 1.00),  # Đà Nẵng: the fisherman in the hat, the net line behind him
+    ("2098", 0.45, 0.50, 1.00),  # Đà Nẵng: the fishermen along the water, the man in the hat on the right
 ]
 
 # The image shown when the link is shared (WhatsApp, iMessage, social media).
