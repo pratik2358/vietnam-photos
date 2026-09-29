@@ -27,10 +27,20 @@ INSTAGRAM = "pkpratik"
 TITLE = "Vietnam"
 SITE_URL = "https://pratik2358.github.io/vietnam-photos/"
 
-# The photo on the opening screen, and its crop (left, top, right, bottom) in pixels.
-INTRO_PHOTO = "intro/intro.jpg"
-INTRO_CROP = (1997, 0, 5366, 3800)
-INTRO_ALT = "Silhouette of a person in a cap smoking on a balcony, misty mountains beyond"
+# The slideshow on the opening screen: (photo, focus). Each photo is cropped to a tall 4:5
+# frame; focus is where across the photo (0 = left edge, 1 = right edge) the crop centres.
+SLIDESHOW = [
+    ("9174", 0.50),  # Hà Nội: the train street
+    ("9770", 0.52),  # Hà Nội: áo dài and umbrella, Temple of Literature
+    ("9553", 0.50),  # Ninh Bình: the valley
+    ("9389", 0.50),  # Ninh Bình: conical hat, orange life vest
+    ("0721", 0.45),  # Sa Pa: sun rays over the mountains
+    ("1027", 0.36),  # Sa Pa: the flag bearer
+    ("2302", 0.62),  # Hội An: red lanterns against the sky
+    ("2474", 0.50),  # Hội An: blue hour on the river
+    ("1830", 0.50),  # Hội An: the Covered Bridge at night
+    ("2098", 0.62),  # Đà Nẵng: hauling the net
+]
 
 # The image shown when the link is shared (WhatsApp, iMessage, social media).
 # FOCUS is how far down the photo (0 = top, 1 = bottom) the crop should centre on.
@@ -239,27 +249,44 @@ def add_unplaced(chapter, placed, folders):
         chapter["rows"].append(("row", *pair) if len(pair) == 2 else ("center", pair[0]))
 
 
-def intro_image():
-    """Crop INTRO_PHOTO for the opening screen; returns its <img> tag."""
-    im = ImageOps.exif_transpose(Image.open(INTRO_PHOTO)).convert("RGB").crop(INTRO_CROP)
-    for name, px in (("s", 1000), ("l", 1900)):
-        c = im.copy()
-        c.thumbnail((px, px), Image.LANCZOS)
-        c.save(f"{OUT}/intro-{name}.jpg", quality=84, optimize=True, progressive=True)
-    w, h = c.size
-    return (f'<img class="intro-img" src="{OUT}/intro-s.jpg" '
-            f'srcset="{OUT}/intro-s.jpg 1000w, {OUT}/intro-l.jpg {w}w" '
-            f'sizes="(max-width: 700px) 100vw, 40vw" width="{w}" height="{h}" '
-            f'alt="{html.escape(INTRO_ALT)}" fetchpriority="high">')
+def source(key, folders):
+    """Path of the original photo for a key like "9553"."""
+    d = os.path.join(SRC, folders[key])
+    return next(os.path.join(d, f) for f in os.listdir(d)
+                if os.path.splitext(f)[0].replace("DSCF", "").lower() == key)
+
+
+def slideshow(folders):
+    """Crop the SLIDESHOW photos to 4:5 into img/show/; returns the slideshow markup."""
+    os.makedirs(f"{OUT}/show", exist_ok=True)
+    keep = set()
+    for key, focus in SLIDESHOW:
+        out = f"{OUT}/show/{key}.jpg"
+        keep.add(f"{key}.jpg")
+        src = source(key, folders)
+        if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(src):
+            continue
+        im = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
+        w, h = im.size
+        cw, ch = (round(h * 4 / 5), h) if w / h > 4 / 5 else (w, round(w * 5 / 4))
+        left = min(max(0, round(w * focus - cw / 2)), w - cw)
+        top = (h - ch) // 2
+        im.crop((left, top, left + cw, top + ch)).resize((1000, 1250), Image.LANCZOS).save(
+            out, quality=82, optimize=True, progressive=True)
+    for f in os.listdir(f"{OUT}/show"):
+        if f not in keep:
+            os.remove(f"{OUT}/show/{f}")
+    # Only the first slide loads with the page; script.js loads each next one just before it shows.
+    imgs = "".join(
+        (f'<img src="{OUT}/show/{k}.jpg" class="on"' if i == 0 else f'<img data-src="{OUT}/show/{k}.jpg"')
+        + ' alt="" width="1000" height="1250">'
+        for i, (k, _) in enumerate(SLIDESHOW))
+    return f'<div class="show" aria-hidden="true">{imgs}</div>'
 
 
 def share_image(folders):
     """Crop SHARE_PHOTO to 1200x630, the shape link previews use, as img/share.jpg."""
-    src = os.path.join(SRC, folders[SHARE_PHOTO], f"DSCF{SHARE_PHOTO}.jpg")
-    if not os.path.exists(src):
-        src = next(os.path.join(SRC, folders[SHARE_PHOTO], f) for f in os.listdir(os.path.join(SRC, folders[SHARE_PHOTO]))
-                   if os.path.splitext(f)[0].replace("DSCF", "").lower() == SHARE_PHOTO)
-    im = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
+    im = ImageOps.exif_transpose(Image.open(source(SHARE_PHOTO, folders))).convert("RGB")
     w, h = im.size
     ch = min(h, round(w * 630 / 1200))
     top = min(max(0, round(h * SHARE_FOCUS - ch / 2)), h - ch)
@@ -427,7 +454,7 @@ def build():
         page = f.read()
     page = (page.replace("{{TITLE}}", TITLE).replace("{{NAME}}", NAME)
             .replace("{{SITE_URL}}", SITE_URL)
-            .replace("{{INTRO_IMG}}", intro_image())
+            .replace("{{SLIDESHOW}}", slideshow(folders))
             .replace("{{INSTAGRAM}}", INSTAGRAM)
             .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)).replace("{{ABOUT}}", about()))
     with open("index.html", "w") as f:

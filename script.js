@@ -16,6 +16,22 @@
     tone.observe(s);
   });
 
+  // Opening slideshow: the next photo fades in every few seconds.
+  const slides = [...document.querySelectorAll('.show img')];
+  const prime = img => { if (img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; } };
+  if (slides.length > 1) {
+    let k = 0;
+    prime(slides[1]);
+    setInterval(() => {
+      const prev = slides[k];
+      k = (k + 1) % slides.length;
+      prev.classList.replace('on', 'off');
+      setTimeout(() => prev.classList.remove('off'), 1900);
+      slides[k].classList.add('on');
+      prime(slides[(k + 1) % slides.length]);
+    }, 5000);
+  }
+
   // Explore more / Show less: each chapter starts collapsed to a short selection.
   document.querySelectorAll('.more-btn').forEach(btn => {
     const chapter = btn.closest('.chapter');
