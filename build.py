@@ -32,7 +32,7 @@ SIZES = {"s": 1000, "l": 2200}
 
 NAME = "Pratik Karmakar"
 INSTAGRAM = "pkpratik"
-GEAR = ["Fujifilm X-T30 III", "TTArtisan 35mm f/1.8", "Fujifilm XF 23mm f/1.4"]
+GEAR = ["Fujifilm X-T30 III", "TTArtisan 35mm f/1.8 II", "Fujifilm XF 23mm f/1.4"]
 TITLE = "Vietnam"
 SITE_URL = "https://pratik2358.github.io/vietnam-photos/"
 
