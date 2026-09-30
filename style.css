@@ -59,9 +59,10 @@ a { color: inherit; text-decoration: none; }
 :root { --flag-red: #da251d; --flag-star: #ffcd00; }
 .star-i { position: relative; display: inline-block; }
 .star-i .star {
-  position: absolute; left: 50%; top: .17em; width: .17em; height: .17em;
+  position: absolute; left: 50%; top: .155em; width: .2em; height: .2em; overflow: visible;
   transform: translateX(-50%) rotate(0deg); fill: var(--flag-star);
-  filter: drop-shadow(0 0 .012em rgba(120, 80, 0, .35));
+  /* A thin red outline, in the letters' red, so the yellow holds up on the pale page. */
+  stroke: var(--flag-red); stroke-width: .22; stroke-linejoin: round; paint-order: stroke fill;
   animation: star-in 1.6s .4s ease both;
 }
 @keyframes star-in { from { opacity: 0; transform: translateX(-50%) scale(.3) rotate(-72deg); } }
