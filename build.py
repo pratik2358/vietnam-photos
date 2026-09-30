@@ -32,6 +32,7 @@ SIZES = {"s": 1000, "l": 2200}
 
 NAME = "Pratik Karmakar"
 INSTAGRAM = "pkpratik"
+GEAR = ["Fujifilm X-T30 III", "TTArtisan 35mm f/1.8", "Fujifilm XF 23mm f/1.4"]
 TITLE = "Vietnam"
 SITE_URL = "https://pratik2358.github.io/vietnam-photos/"
 
@@ -508,6 +509,7 @@ def build():
             .replace("{{TITLE_ART}}", title_art(TITLE))
             .replace("{{SLIDESHOW}}", slideshow(folders))
             .replace("{{INSTAGRAM}}", INSTAGRAM)
+            .replace("{{GEAR}}", "".join(f"<li>{html.escape(g)}</li>" for g in GEAR))
             .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)).replace("{{ABOUT}}", about()))
     with open("index.html", "w") as f:
         f.write(page)

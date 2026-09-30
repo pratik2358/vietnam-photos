@@ -178,6 +178,11 @@ body[data-tone="dark"] .more-thumbs img { border-color: var(--night-ink); }
 .end { text-align: center; padding: var(--space) 7vw calc(var(--space) * 1.2); }
 .fin { font: 300 clamp(44px, 6.4vw, 88px)/1 var(--serif); color: var(--flag-red); margin-bottom: 18px; }
 .end .ig { display: block; margin-top: 12px; }
+.gear { margin: 4px auto 30px; }
+.gear-k { font-size: 10px; text-transform: uppercase; letter-spacing: .3em; color: var(--muted); }
+.gear ul { list-style: none; margin-top: 8px; font: italic 300 clamp(17px, 1.6vw, 21px)/1.5 var(--serif); color: var(--ink); }
+.gear li { display: inline-block; white-space: nowrap; }
+.gear li + li::before { content: "\00b7"; margin: 0 .6em; color: var(--muted); font-style: normal; }
 .end a { display: inline-block; margin-top: 28px; color: var(--muted); font-size: 12px; letter-spacing: .12em; }
 .end a:hover { color: var(--ink); }
 
@@ -279,6 +284,8 @@ body[data-tone="dark"] .more-thumbs img { border-color: var(--night-ink); }
   .lb-p, .lb-n { top: auto; bottom: 4px; transform: none; }
   .lb-foot { bottom: 18px; gap: 18px; }
   .more { padding: 0 16px; }
+  .gear li { display: block; }
+  .gear li + li::before { content: none; }
   .more-btn { gap: 14px; padding-right: 24px; letter-spacing: .14em; font-size: 12px; }
   .more-thumbs img { width: 44px; height: 44px; margin-left: -14px; }
   .lb.talking { padding: 64px 0 0; place-items: start center; }
