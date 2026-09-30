@@ -431,6 +431,21 @@ def more_button(chapter, hidden):
             f'<span class="more-arrow" aria-hidden="true">&darr;</span></button></div>')
 
 
+STAR = ('<svg class="star" viewBox="-1 -1 2 2" aria-hidden="true"><polygon points="'
+        + " ".join(f"{r * __import__('math').sin(i * 3.14159265 / 5):.3f},{-r * __import__('math').cos(i * 3.14159265 / 5):.3f}"
+                   for i, r in zip(range(10), [1, .382] * 5))
+        + '"/></svg>')
+
+
+def title_art(title):
+    """The landing title in flag red, with the dot of the first "i" replaced by the flag's yellow star."""
+    if "i" not in title:
+        return html.escape(title)
+    a, b = title.split("i", 1)
+    return (f'<span aria-hidden="true">{html.escape(a)}<span class="star-i">\u0131{STAR}</span>'
+            f'{html.escape(b)}</span>')
+
+
 def build():
     dims, folders = process()
     share_image(folders)
@@ -490,6 +505,7 @@ def build():
         page = f.read()
     page = (page.replace("{{TITLE}}", TITLE).replace("{{NAME}}", NAME)
             .replace("{{SITE_URL}}", SITE_URL)
+            .replace("{{TITLE_ART}}", title_art(TITLE))
             .replace("{{SLIDESHOW}}", slideshow(folders))
             .replace("{{INSTAGRAM}}", INSTAGRAM)
             .replace("{{NAV}}", nav).replace("{{CHAPTERS}}", "".join(body)).replace("{{ABOUT}}", about()))

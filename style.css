@@ -50,10 +50,21 @@ a { color: inherit; text-decoration: none; }
   font-size: 11px; text-transform: uppercase; letter-spacing: .28em; color: var(--muted);
 }
 .intro h1 {
+  color: var(--flag-red);
   font: 300 clamp(64px, calc((82vw - var(--pw)) / 3.4), 240px)/.85 var(--serif);
   letter-spacing: -.02em;
   margin: 2vh 0 3vh -.05em;
 }
+/* The flag's colours: red letters, the dot of the "i" replaced by the yellow star. */
+:root { --flag-red: #da251d; --flag-star: #ffcd00; }
+.star-i { position: relative; display: inline-block; }
+.star-i .star {
+  position: absolute; left: 50%; top: .17em; width: .17em; height: .17em;
+  transform: translateX(-50%) rotate(0deg); fill: var(--flag-star);
+  filter: drop-shadow(0 0 .012em rgba(120, 80, 0, .35));
+  animation: star-in 1.6s .4s ease both;
+}
+@keyframes star-in { from { opacity: 0; transform: translateX(-50%) scale(.3) rotate(-72deg); } }
 .by { color: var(--ink); }
 .ig { margin-top: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); transition: color .2s; }
 .ig:hover { color: var(--ink); }
@@ -286,6 +297,7 @@ body[data-tone="dark"] .more-thumbs img { border-color: var(--night-ink); }
   html { scroll-behavior: auto; }
   .js .ph { opacity: 1; transform: none; transition: none; }
   .down { animation: none; }
+  .star-i .star { animation: none; }
   .show img.on { animation: none; }
   .show img.off { transform: none; }
 }
