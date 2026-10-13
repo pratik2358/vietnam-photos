@@ -18,9 +18,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script>document.documentElement.classList.add('js')</script>
+<script>
+document.documentElement.classList.add('js');
+// Night mode is a per-viewer choice; apply it before the page draws so it never flashes light.
+try { if (localStorage.getItem('mode') === 'night') document.documentElement.classList.add('night'); } catch (e) {}
+</script>
 </head>
 <body data-tone="light">
+
+<button class="mode" type="button" aria-pressed="false" aria-label="Night mode" title="Night mode">
+  <svg class="moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+  <svg class="sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>
+</button>
 
 <header class="intro" id="top">
   <div class="show" aria-hidden="true"><img src="img/show/9174.jpg" class="on" alt="" width="1000" height="1250"><img data-src="img/show/9770.jpg" alt="" width="1000" height="1250"><img data-src="img/show/9553.jpg" alt="" width="1000" height="1250"><img data-src="img/show/9389.jpg" alt="" width="1000" height="1250"><img data-src="img/show/0721.jpg" alt="" width="1000" height="1250"><img data-src="img/show/1027.jpg" alt="" width="1000" height="1250"><img data-src="img/show/2302.jpg" alt="" width="1000" height="1250"><img data-src="img/show/2474.jpg" alt="" width="1000" height="1250"><img data-src="img/show/1830.jpg" alt="" width="1000" height="1250"><img data-src="img/show/2098.jpg" alt="" width="1000" height="1250"></div>

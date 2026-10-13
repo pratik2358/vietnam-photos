@@ -16,6 +16,22 @@
     tone.observe(s);
   });
 
+  // Night mode toggle: remembered in this browser only; the page stays as designed when it's off.
+  const modeBtn = document.querySelector('.mode');
+  const root = document.documentElement;
+  const syncMode = () => {
+    const on = root.classList.contains('night');
+    modeBtn.setAttribute('aria-pressed', on);
+    modeBtn.setAttribute('aria-label', on ? 'Day mode' : 'Night mode');
+    modeBtn.title = on ? 'Day mode' : 'Night mode';
+  };
+  modeBtn.addEventListener('click', () => {
+    const on = root.classList.toggle('night');
+    try { on ? localStorage.setItem('mode', 'night') : localStorage.removeItem('mode'); } catch (e) {}
+    syncMode();
+  });
+  syncMode();
+
   // Opening slideshow: the next photo fades in every few seconds.
   const slides = [...document.querySelectorAll('.show img')];
   const prime = img => { if (img.dataset.src) { img.src = img.dataset.src; delete img.dataset.src; } };
